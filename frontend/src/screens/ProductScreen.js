@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Row,
   Col,
@@ -7,8 +7,9 @@ import {
   Card,
   Button,
   ListGroupItem,
+  FormControl,
 } from 'react-bootstrap'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import Rating from '../components/Rating'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -19,7 +20,9 @@ import Message from '../components/Message'
 import Loader from '../components/Loader'
 
 const ProductScreen = () => {
+  const navigate = useNavigate()
   const params = useParams()
+  const [qty, setQty] = useState(1)
   const dispatch = useDispatch()
 
   const productDetails = useSelector((state) => state.productDetails)
@@ -32,6 +35,10 @@ const ProductScreen = () => {
       dispatch(clearProductDetails())
     }
   }, [dispatch, params])
+
+  const addToCartHandler = () => {
+    navigate(`/cart/${params.id}/?qty=${qty}`)
+  }
 
   return (
     <>
@@ -83,7 +90,28 @@ const ProductScreen = () => {
                 </ListGroup.Item>
                 <ListGroup.Item>
                   <Row>
-                    <Button disabled={product.countInStock === 0}>
+                    <Col>Qty</Col>
+                    <Col>
+                      <FormControl
+                        as='select'
+                        value={qty}
+                        onChange={(e) => setQty(e.target.value)}
+                      >
+                        {[...Array(product.countInStock).keys()].map((x) => (
+                          <option key={x + 1} value={x + 1}>
+                            {x + 1}
+                          </option>
+                        ))}
+                      </FormControl>
+                    </Col>
+                  </Row>
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <Row>
+                    <Button
+                      onClick={addToCartHandler}
+                      disabled={product.countInStock === 0}
+                    >
                       Add to cart
                     </Button>
                   </Row>
